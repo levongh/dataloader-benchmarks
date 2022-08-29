@@ -37,6 +37,8 @@ if __name__ == "__main__":
         for server in SERVERS:
             print(lib, server)
 
+            os.environ["DYNACONF_LIBRARY"] = lib
+
             if server == "local":
                 st.REMOTE = False
                 os.environ["DYNACONF_REMOTE"] = "False"
@@ -80,3 +82,5 @@ if __name__ == "__main__":
             except Exception as e:
                 print(e)
                 pid.kill()
+
+            break
