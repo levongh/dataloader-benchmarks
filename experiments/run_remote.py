@@ -25,7 +25,7 @@ def set_configs(num):
 
     os.environ[f"DYNACONF_S3_ENDPOINT"] = st[f"S3_ENDPOINT_{num}"]
     os.environ[f"DYNACONF_AWS_ACCESS_KEY_ID"] = st[f"AWS_ACCESS_KEY_ID_{num}"]
-    os.environ[f"AWS_SECRET_ACCESS_KEY"] = st[f"AWS_SECRET_ACCESS_KEY_{num}"]
+    os.environ[f"DYNACONF_AWS_SECRET_ACCESS_KEY"] = st[f"AWS_SECRET_ACCESS_KEY_{num}"]
 
 
 # %%
