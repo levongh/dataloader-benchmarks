@@ -45,7 +45,7 @@ def get_s3_creds():
     return {
         "aws_access_key_id": st.AWS_ACCESS_KEY_ID,
         "aws_secret_access_key": st.AWS_SECRET_ACCESS_KEY,
-        "endpoint_url": st.S3_ENDPOINT,
+        "endpoint_url": st.S3_ENDPOINT if st.S3_ENDPOINT != "None" else None,
     }
 
 
