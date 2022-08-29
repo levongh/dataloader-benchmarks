@@ -1,6 +1,7 @@
 import datetime
 from pathlib import Path
 import boto3
+import botocore
 from botocore.client import Config
 from botocore.client import ClientError
 from src.config import settings as st
@@ -32,6 +33,9 @@ def is_s3_up():
         s3.meta.client.head_bucket(Bucket=st.bucket_name)
         return True
     except ClientError:
+        print("Bucket unavailable")
+        return False
+    except botocore.exceptions.EndpointConnectionError:
         print("Bucket unavailable")
         return False
         # The bucket does not exist or you have no access.

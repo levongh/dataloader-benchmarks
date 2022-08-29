@@ -1,6 +1,7 @@
 # Byte-compiled / optimized / DLL files
 indra-0.0.*-py3-none-any.whl
 *.png
+*.jpg
 data/
 downloaded_results/
 results/
