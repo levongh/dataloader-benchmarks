@@ -35,6 +35,7 @@ if __name__ == "__main__":
 
     for lib in LIBRARIES:
         for server in SERVERS:
+            print(lib, server)
 
             if server == "local":
                 st.REMOTE = False
@@ -53,7 +54,14 @@ if __name__ == "__main__":
             setup_s3cmd()
 
             ## Create dataset
-            ARGS = ["python src/datasets/prepare.py", "--library", lib]
+            ARGS = [
+                "python",
+                "src/datasets/prepare.py",
+                "--library",
+                lib,
+                "--dataset",
+                "random",
+            ]
             if server != "local":
                 ARGS += ["--remote"]
             pid = subprocess.Popen(ARGS)
