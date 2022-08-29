@@ -52,6 +52,14 @@ if __name__ == "__main__":
 
             setup_s3cmd()
 
+            ## Create dataset
+            ARGS = ["python src/datasets/prepare.py", "--library", lib]
+            if server != "local":
+                ARGS += ["--remote"]
+            pid = subprocess.Popen(ARGS)
+            pid.wait()
+
+            # Run the experiment
             ARGS = [
                 "python",
                 "-Wignore",
