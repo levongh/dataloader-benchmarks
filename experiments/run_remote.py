@@ -5,7 +5,7 @@ from src.config import settings as st
 
 
 LIBRARIES = ["hub", "hub3", "webdataset"]
-SERVERS = ["local", "remote_1", "remote_2", "remote_3"]
+SERVERS = ["local", "remote_1", "remote_2"]  # "remote_3"]
 
 
 def set_general():
@@ -69,18 +69,20 @@ if __name__ == "__main__":
             pid = subprocess.Popen(ARGS)
             pid.wait()
 
-            # Run the experiment
-            ARGS = [
-                "python",
-                "-Wignore",
-                "src/run.py"
-                # "-c",
-                # "from src.config import settings as st; print(st.as_dict())",
-            ]
-            try:
-                pid = subprocess.Popen(ARGS)
-            except Exception as e:
-                print(e)
-                pid.kill()
+            print(f"Finished generating dataset: {lib} {server}")
 
-            break
+            # Run the experiment
+            # ARGS = [
+            #     "python",
+            #     "-Wignore",
+            #     "src/run.py"
+            #     # "-c",
+            #     # "from src.config import settings as st; print(st.as_dict())",
+            # ]
+            # try:
+            #     pid = subprocess.Popen(ARGS)
+            # except Exception as e:
+            #     print(e)
+            #     pid.kill()
+
+            # print(f"Finished running dataset: {lib} {server}")
