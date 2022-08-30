@@ -45,7 +45,7 @@ if __name__ == "__main__":
             print(lib, server)
 
             cleanup_runs_files()
-            path = Path(st.local_results_dir) + f"{lib}_{server}.txt"
+            path = Path(st.local_results_dir) / f"{lib}_{server}.txt"
             if path.is_file():
                 continue
 
