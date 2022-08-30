@@ -1,7 +1,9 @@
 import subprocess
 import os
 from src.utils.setup_s3cmd import setup_s3cmd
+from src.utils.experiments import cleanup_runs_files
 from src.config import settings as st
+from pathlib import Path
 
 
 LIBRARIES = ["hub", "hub3", "webdataset"]
@@ -42,6 +44,11 @@ if __name__ == "__main__":
         for server in SERVERS:
             print(lib, server)
 
+            cleanup_runs_files()
+            path = Path(st.local_results_dir) + f"{lib}_{server}.txt"
+            if path.is_file():
+                continue
+
             os.environ["DYNACONF_LIBRARY"] = lib
 
             if server == "local":
@@ -78,12 +85,15 @@ if __name__ == "__main__":
             print(f"Finished generating dataset: {lib} {server}")
 
             # Run the experiment
-            ARGS = ["python", "-Wignore", "src/run.py"]
+            ARGS = ["python", "src/run.py"]
             try:
-                pid = subprocess.Popen(ARGS)
-                pid.wait()
+                print("Starting the run")
+                pid2 = subprocess.Popen(ARGS)
+                pid2.wait()
             except Exception as e:
                 print(e)
-                pid.kill()
+                pid2.kill()
 
             print(f"Finished running dataset: {lib} {server}")
+
+            path.touch()
