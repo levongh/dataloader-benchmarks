@@ -6,8 +6,10 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 from pathlib import Path
 from distutils.util import strtobool
+from matplotlib.lines import Line2D
 
-plt.style.use(["science", "no-latex"])
+plt.style.use(["science", "no-latex", "ieee", "std-colors"])
+COLORS = plt.rcParams["axes.prop_cycle"].by_key()["color"]
 
 
 def config_to_bool(value):
@@ -89,6 +91,7 @@ df = pd.DataFrame(experiments)
 df = df[(df["cutoff"] == 10)].dropna(axis=1, how="all")
 
 
+pal = dict((l, c) for l, c in zip(df["library"].unique(), COLORS))
 # %%
 
 # %%
@@ -107,38 +110,31 @@ for ds in datasets:
     for m in modes:
         df_ = df[(df["dataset"] == ds) & (df["mode"] == m) & (df["remote"] == False)]
 
-        try:
-            title = f"{ds}_{m}_batch"
+        for x in ["num_workers", "batch_size"]:
+            try:
+                df_x = (
+                    df_.groupby([x, "library", "rep"])["avg_speed"].max().reset_index()
+                )
+                title = f"{ds}_{m}_{x}"
 
-            fig, ax = plt.subplots()
-            sns.boxplot(
-                data=df_,
-                x="batch_size",
-                y="avg_speed",
-                hue="library",
-                dodge=True,
-                ax=ax,
-            )
-            ax.set_title(title)
-            ax.legend(bbox_to_anchor=(0.5, 1.1), ncol=3, loc="lower center")
-            fig.savefig(p2 / (title + ".jpg"))
+                fig, ax = plt.subplots()
+                sns.barplot(
+                    data=df_x,
+                    x=x,
+                    y="avg_speed",
+                    hue="library",
+                    dodge=True,
+                    ax=ax,
+                    palette=pal,
+                )
+                ax.set_title(title)
+                ax.legend(bbox_to_anchor=(0.5, 1.1), ncol=3, loc="lower center")
+                fig.savefig(p2 / (title + ".jpg"))
 
-        except Exception as e:
-            print(e)
-            print("Failed", ds, m)
-        title = f"{ds}_{m}_workers"
-        fig2, ax2 = plt.subplots()
-        sns.boxplot(
-            data=df_,
-            x="num_workers",
-            y="avg_speed",
-            hue="library",
-            dodge=True,
-            ax=ax2,
-        )
-        ax2.set_title(title)
-        ax2.legend(bbox_to_anchor=(0.5, 1.1), ncol=3, loc="lower center")
-        fig2.savefig(p2 / (title + ".jpg"))
+            except Exception as e:
+                print(e)
+                print("Failed", ds, m)
+
 
 # %%
 
@@ -152,20 +148,21 @@ df_2 = df.copy()
 df_2 = df_2.query("dataset == @ds and num_workers == @nw and batch_size == @bs")
 df_2 = df_2.query("rep == @rep and remote == 0 and mode == @m")
 
+
 ylabels = []
 times = []
 colors = []
 for i, r in df_2.iterrows():
     ylabels.append(r.library)
 
-    colors = ["orange"]
+    colors = [COLORS[0]]
 
     t_ = [r.time_train_loader]
     for j in range(r.cutoff):
         t_ += [r[f"time_batch_{j}"]]
-        colors += ["powderblue"]
+        colors += [COLORS[1]]
     t_ += [r.remaining_time]
-    colors += ["coral"]
+    colors += [COLORS[2]]
     times.append(t_)
 
 # %%
@@ -206,8 +203,25 @@ max_x = max([sum(x) for x in times])
 ax.set_xlim([0, max_x * 1.05])
 ax.set_ylim([0, 2 * h * (len(times))])
 
+
+custom_lines = [
+    Line2D([0], [0], color=COLORS[0], lw=4),
+    Line2D([0], [0], color=COLORS[1], lw=4),
+    Line2D([0], [0], color=COLORS[2], lw=4),
+]
+ax.legend(
+    custom_lines,
+    ["Dataloader Init", "Batch", "Wrap Up"],
+    bbox_to_anchor=(0.5, 1),
+    loc="lower center",
+    ncol=3,
+)
+
+ax.set_xlabel("Time [s]")
+
 ax.set_yticks([(h / 2) + (h * i * 2) for i in range(len(times))])
 ax.set_yticklabels(ylabels)
 fig.show()
+fig.savefig(p2 / "closer_look.jpg")
 
 # %%
