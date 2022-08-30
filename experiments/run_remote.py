@@ -77,17 +77,17 @@ if __name__ == "__main__":
             print(f"Finished generating dataset: {lib} {server}")
 
             # Run the experiment
-            # ARGS = [
-            #     "python",
-            #     "-Wignore",
-            #     "src/run.py"
-            #     # "-c",
-            #     # "from src.config import settings as st; print(st.as_dict())",
-            # ]
-            # try:
-            #     pid = subprocess.Popen(ARGS)
-            # except Exception as e:
-            #     print(e)
-            #     pid.kill()
+            ARGS = [
+                "python",
+                "-Wignore",
+                "src/run.py"
+                # "-c",
+                # "from src.config import settings as st; print(st.as_dict())",
+            ]
+            try:
+                pid = subprocess.Popen(ARGS)
+            except Exception as e:
+                print(e)
+                pid.kill()
 
-            # print(f"Finished running dataset: {lib} {server}")
+            print(f"Finished running dataset: {lib} {server}")
