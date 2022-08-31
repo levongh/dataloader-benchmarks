@@ -23,6 +23,11 @@ def config_to_bool(value):
 
 # %%
 
+rename_x = {"num_workers": "Number of Workers", "batch_size": "Batch Size"}
+
+target = "avg_speed"
+target_label = "Average Speed [#/s]"
+
 
 def compute_average_speed(runtimes: list, batch_size: int):
     """
@@ -127,7 +132,9 @@ for ds in datasets:
                     ax=ax,
                     palette=pal,
                 )
-                ax.set_title(title)
+                # ax.set_title(title)
+                ax.set_xlabel(rename_x[x])
+                ax.set_ylabel(target_label)
                 ax.legend(bbox_to_anchor=(0.5, 1.1), ncol=3, loc="lower center")
                 fig.savefig(p2 / (title + ".jpg"))
 
@@ -224,4 +231,60 @@ ax.set_yticklabels(ylabels)
 fig.show()
 fig.savefig(p2 / "closer_look.jpg")
 
+# %%
+
+ds = "random"
+x = "library"
+hue = "mode"
+df_2 = df.copy()
+df_2 = df_2.query("dataset == @ds and mode != 'filtering'")
+
+g = (
+    df_2.groupby([x, hue])[target]
+    .max()
+    .groupby(level=0)
+    .filter(lambda y: len(y) > 1)
+    .reset_index()
+    .sort_values(x)
+)
+
+# %%
+
+N = int(g[x].nunique())
+x_range = np.arange(N)
+width = 0.35
+
+s_vals = g[g[hue] == "default"][target].values
+m_vals = g[g[hue] == "distributed"][target].values
+
+fig, ax = plt.subplots()
+r1 = ax.bar(x_range - width / 2, s_vals, width=width, label="Single GPU")
+r2 = ax.bar(x_range + width / 2, m_vals, width=width, label="Multi GPU")
+ax.legend()
+ax.set_xticks(x_range, list(g[x].unique()))
+ax.set_ylabel(target_label)
+ax.tick_params(axis="x", labelrotation=10)
+
+
+change = (m_vals - s_vals) / s_vals
+change_str = [f"{c:.1%}" for c in change]
+ax.bar_label(r2, padding=0, labels=change_str, label_type="edge")
+fig.savefig(p2 / f"ddp_gains_{ds}.jpg")
+# fig_name = f"ddp_gains_{dataset}.png"
+
+# ax.set_title(title)
+# fig.savefig(fig_name)
+
+# %%
+
+df_interest = pd.read_csv("interest_over_time.csv", header=1)
+df_interest = df_interest.set_index("Week")
+df_interest.index = pd.to_datetime(df_interest.index)
+df_interest.columns = [c.replace(": (Worldwide)", "") for c in df_interest.columns]
+# %%
+fig, ax = plt.subplots()
+df_interest.plot(ax=ax)
+ax.set_xlabel("Time")
+ax.set_ylabel("Interest over Time [0-100]")
+fig.savefig(p2 / "interest.jpg")
 # %%
